@@ -29,6 +29,12 @@ public class PlayerController : NetworkBehaviour
         }
 
         currentHealth.OnValueChanged += UpdateHealthBar;
+
+        //Desemparentar canvas de la barra de vida para que funcione el Constraint
+        healthBarImg.transform.parent.parent.SetParent(null);
+
+        //Poner la rotación del canvas a 0 para eliminar un Bug
+        healthBarImg.transform.parent.rotation = Quaternion.Euler(30, 0, 0);
     }
 
     void Update()
@@ -80,5 +86,31 @@ public class PlayerController : NetworkBehaviour
     void UpdateHealthBar(int oldValue, int newValue)
     {
         healthBarImg.fillAmount = newValue / 100f;
+
+        //Comprobar si el jugador ha muerto
+        if (newValue <= 0)
+        {
+            Die();
+        }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        if (!IsLocalPlayer) return; //Para que todos los players no intenten quitarle vida a este jugador (no tienen permiso y va a saltar error)
+
+        currentHealth.Value -= damage;
+
+        if (currentHealth.Value <= 0)
+        {
+            currentHealth.Value = 0;
+
+            Debug.Log("RIP Johnny ;(");
+        }
+    }
+
+    void Die()
+    {
+        gameObject.SetActive(false);
+        healthBarImg.transform.parent.parent.gameObject.SetActive(false);
     }
 }
