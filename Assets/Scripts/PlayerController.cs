@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine.UI;
+using System.Collections;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -18,14 +19,24 @@ public class PlayerController : NetworkBehaviour
     private Rigidbody rb;
     private Vector3 input;
 
+    public GameObject graphics;
+
+    private NetworkTransform netTransform;
+
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        netTransform = GetComponent<NetworkTransform>();
 
         //Si es el jugador local, cambia el color del sombrero
         if(IsLocalPlayer == true)
         {
             hat.material.color = Color.cornflowerBlue;
+
+            //Mover al personaje a una posición de spawn aleatoria
+            netTransform.Teleport(RespawnManager.Instance.GetRespawn().position, transform.rotation, transform.localScale);
         }
 
         currentHealth.OnValueChanged += UpdateHealthBar;
@@ -110,7 +121,22 @@ public class PlayerController : NetworkBehaviour
 
     void Die()
     {
-        gameObject.SetActive(false);
-        healthBarImg.transform.parent.parent.gameObject.SetActive(false);
+        StartCoroutine(RespawnCrt());
+    }
+
+    IEnumerator RespawnCrt()
+    {
+        graphics.SetActive(false);
+
+        yield return new WaitForSecondsRealtime(RespawnManager.Instance.timeToRespawn);
+
+        if (IsLocalPlayer)
+        {
+            netTransform.Teleport(RespawnManager.Instance.GetRespawn().position, transform.rotation, transform.localScale);
+
+            currentHealth.Value = 100;
+        }
+
+        graphics.SetActive(true);
     }
 }
