@@ -23,6 +23,15 @@ public class PlayerController : NetworkBehaviour
 
     private NetworkTransform netTransform;
 
+    private bool isInvulnerable = false;
+
+    //Es como Start pero después de que el objeto se haya inicializado en la red
+    public override void OnNetworkSpawn()
+    {
+        //Añadir nueva puntuación para este jugador
+        ScoreManager.Instance.CreateNewScore();
+    }
+
 
     void Start()
     {
@@ -53,6 +62,13 @@ public class PlayerController : NetworkBehaviour
         //Si este objeto NO pertenece al jugador local, no se mueve
         if (IsLocalPlayer == false)
         {
+            return;
+        }
+
+        //Bloquear las acciones si el jugador está muerto
+        if(currentHealth.Value <= 0)
+        {
+            input = Vector3.zero;
             return;
         }
 
@@ -109,6 +125,8 @@ public class PlayerController : NetworkBehaviour
     {
         if (!IsLocalPlayer) return; //Para que todos los players no intenten quitarle vida a este jugador (no tienen permiso y va a saltar error)
 
+        if (isInvulnerable) return;
+
         currentHealth.Value -= damage;
 
         if (currentHealth.Value <= 0)
@@ -127,16 +145,25 @@ public class PlayerController : NetworkBehaviour
     IEnumerator RespawnCrt()
     {
         graphics.SetActive(false);
+        rb.isKinematic = true;
+        transform.position += Vector3.up * 1000;
 
         yield return new WaitForSecondsRealtime(RespawnManager.Instance.timeToRespawn);
+
+        graphics.SetActive(true);
+
+        rb.isKinematic = true;
 
         if (IsLocalPlayer)
         {
             netTransform.Teleport(RespawnManager.Instance.GetRespawn().position, transform.rotation, transform.localScale);
 
             currentHealth.Value = 100;
-        }
 
-        graphics.SetActive(true);
+            //Activar invulnerabilidad
+            isInvulnerable = true;
+            yield return new WaitForSecondsRealtime(3);
+            isInvulnerable = false;
+        }
     }
 }

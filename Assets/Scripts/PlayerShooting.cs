@@ -22,7 +22,7 @@ public class PlayerShooting : NetworkBehaviour
         if(!IsLocalPlayer) return;
 
         //Solo puede disparar si el objeto del sombrero está activado
-        if (Input.GetMouseButtonDown(0) && hatVisuals.activeSelf)
+        if (Input.GetMouseButtonDown(0) && hatVisuals.activeInHierarchy)
         {
             ShootRpc(firePoint.position, transform.forward * projectileSpeed);
         }
