@@ -4,7 +4,7 @@ using System.Collections;
 
 public class PlayerShooting : NetworkBehaviour
 {
-    [SerializeField] private Rigidbody projectilePrefab;
+    [SerializeField] private Projectile projectilePrefab;
     [SerializeField] private float projectileSpeed = 5f;
     [SerializeField] private Transform firePoint;
 
@@ -38,8 +38,8 @@ public class PlayerShooting : NetworkBehaviour
     private IEnumerator ShootCRT(Vector3 spawnPosition, Vector3 shootDirection)
     {
         hatVisuals.SetActive(false);
-        Rigidbody projectile = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
-        projectile.AddForce(shootDirection, ForceMode.VelocityChange);
+        Projectile projectile = Instantiate(projectilePrefab, spawnPosition, Quaternion.identity);
+        projectile.Shoot(shootDirection, (int)NetworkObject.OwnerClientId);        
 
         yield return new WaitForSeconds(timeBetweenShots);
 

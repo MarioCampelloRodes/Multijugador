@@ -25,13 +25,6 @@ public class PlayerController : NetworkBehaviour
 
     private bool isInvulnerable = false;
 
-    //Es como Start pero después de que el objeto se haya inicializado en la red
-    public override void OnNetworkSpawn()
-    {
-        //Añadir nueva puntuación para este jugador
-        ScoreManager.Instance.CreateNewScore();
-    }
-
 
     void Start()
     {
@@ -55,6 +48,9 @@ public class PlayerController : NetworkBehaviour
 
         //Poner la rotación del canvas a 0 para eliminar un Bug
         healthBarImg.transform.parent.rotation = Quaternion.Euler(30, 0, 0);
+
+        //Crear Puntuación para este jugador
+        ScoreManager.Instance.CreateNewScore();
     }
 
     void Update()
@@ -121,7 +117,7 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, int playerID)
     {
         if (!IsLocalPlayer) return; //Para que todos los players no intenten quitarle vida a este jugador (no tienen permiso y va a saltar error)
 
@@ -133,7 +129,8 @@ public class PlayerController : NetworkBehaviour
         {
             currentHealth.Value = 0;
 
-            Debug.Log("RIP Johnny ;(");
+            //Cuando muere, suma puntos al jugador que le haya hecho daño
+            ScoreManager.Instance.playerScores.Add(playerID);
         }
     }
 
@@ -152,7 +149,7 @@ public class PlayerController : NetworkBehaviour
 
         graphics.SetActive(true);
 
-        rb.isKinematic = true;
+        rb.isKinematic = false;
 
         if (IsLocalPlayer)
         {

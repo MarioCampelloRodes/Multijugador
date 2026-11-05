@@ -540,7 +540,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerShooting
   ShowTopMostFoldoutHeaderGroup: 1
-  projectilePrefab: {fileID: 6898039221545648585, guid: 159ace4fce500074b917173a783a5227, type: 3}
+  projectilePrefab: {fileID: 1574867937826730360, guid: 159ace4fce500074b917173a783a5227, type: 3}
   projectileSpeed: 5
   firePoint: {fileID: 8278319118420333972}
   hatVisuals: {fileID: 3823227104212943895}

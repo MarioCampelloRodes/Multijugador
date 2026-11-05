@@ -186,6 +186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Projectile
   damage: 15
+  rb: {fileID: 6898039221545648585}
 --- !u!1 &1797796961863348486
 GameObject:
   m_ObjectHideFlags: 0
