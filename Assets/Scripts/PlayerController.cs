@@ -50,7 +50,7 @@ public class PlayerController : NetworkBehaviour
         healthBarImg.transform.parent.rotation = Quaternion.Euler(30, 0, 0);
 
         //Crear Puntuación para este jugador
-        ScoreManager.Instance.CreateNewScore();
+        ScoreManager.Instance.CreateNewScore((int)NetworkObject.OwnerClientId);
     }
 
     void Update()
@@ -130,7 +130,7 @@ public class PlayerController : NetworkBehaviour
             currentHealth.Value = 0;
 
             //Cuando muere, suma puntos al jugador que le haya hecho daño
-            ScoreManager.Instance.playerScores.Add(playerID);
+            ScoreManager.Instance.AddScore(playerID);
         }
     }
 

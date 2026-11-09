@@ -22,19 +22,28 @@ public class ScoreManager : NetworkBehaviour
         }
     }
 
-    //private void Start()
-    //{
-    //    //Añadir una función para cuando se modifica cualquier puntuación de la lista 
-    //    playerScores.OnListChanged += UpdateScores;
-    //}
+    private void Start()
+    {
+        //Añadir una función para cuando se modifica cualquier puntuación de la lista 
+        playerScores.OnListChanged += UpdateScores;
+    }
 
-    //void UpdateScores(NetworkListEvent<int> scores)
-    //{
-    //    for(int i = 0; i < scores.Value; i++)
-    //    {
+    //El callback del NetworkList envía por separado el índice y el valor del elemento que ha cambiado
+    //En la variable de tipo Event, el Index es el índice del objeto y Value su valor
+    void UpdateScores(NetworkListEvent<int> ev)
+    {
+        //Si el texto de esa puntuación está oculto, se activa
+        //scoreTexts[ev.Index].gameObject.SetActive(true);
 
-    //    }
-    //}
+        //Actualizar el texto de puntuación correspondiente a la ID del jugador que ha cambiado
+        scoreTexts[ev.Index].text = ev.Value.ToString();
+
+        //Se comprueba si se ha llegado a la puntuación máxima. Si ocurre, se acaba la partidilla
+        if(ev.Value >= 3)
+        {
+            EndGame((ulong)ev.Index);
+        }
+    }
 
     //Aumentar la puntuación del jugador
     public void AddScore(int playerID)
@@ -58,10 +67,34 @@ public class ScoreManager : NetworkBehaviour
         playerScores[playerID]++;
     }
     //Crear una nueva puntuación para el jugador que entre nuevo
-    public void CreateNewScore()
+    public void CreateNewScore(int playerID)
     {
-        playerScores.Add(0);
-        //Activar un nuevo texto de puntuación
-        scoreTexts[playerScores.Count -1].gameObject.SetActive(true);
+        if(IsServer == true)
+        {
+            playerScores.Add(0);
+        }
+
+        //Activar un nuevo texto de puntuación para el jugador que ha entrado
+        scoreTexts[playerID].gameObject.SetActive(true);
+
+        //Si el jugador que ejecuta esta función es el mismo que nuestro jugador local, es nuestra puntuación
+        if((int)NetworkManager.LocalClientId  == playerID)
+        {
+            scoreTexts[playerID].color = Color.mediumSpringGreen;
+        }
+    }
+
+    //ulong es como un int pero guarda números más grandes y solo puede ser positivo
+    void EndGame(ulong winnerID)
+    {
+        //Si la ID del ganador coincide con la nuestra, hemos ganado
+        if(NetworkManager.LocalClientId == winnerID)
+        {
+            Debug.Log("Victoria");
+        }
+        else //Si no, somos unos fracasados
+        {
+            Debug.Log("Derrota");
+        }
     }
 }
