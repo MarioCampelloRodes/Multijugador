@@ -3,6 +3,7 @@ using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.VFX;
 
 public class PlayerController : NetworkBehaviour
 {
@@ -25,7 +26,7 @@ public class PlayerController : NetworkBehaviour
 
     private bool isInvulnerable = false;
 
-
+    [SerializeField] private VisualEffect deathExplosionVFX;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -143,6 +144,11 @@ public class PlayerController : NetworkBehaviour
     {
         graphics.SetActive(false);
         rb.isKinematic = true;
+
+        //Crear efecto visual de muerte
+        VisualEffect vfx = Instantiate(deathExplosionVFX, transform.position, Quaternion.identity);
+        Destroy(vfx, 6);
+
         transform.position += Vector3.up * 1000;
 
         yield return new WaitForSecondsRealtime(RespawnManager.Instance.timeToRespawn);

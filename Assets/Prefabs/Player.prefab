@@ -527,6 +527,7 @@ MonoBehaviour:
   hat: {fileID: 8868562668494303217}
   healthBarImg: {fileID: 6735458626647364989}
   graphics: {fileID: 1739620535344036805}
+  deathExplosionVFX: {fileID: 3101939991339822774, guid: 7cfb67222fb3c9440b8d652c9d40ae8d, type: 3}
 --- !u!114 &4160880294534245391
 MonoBehaviour:
   m_ObjectHideFlags: 0

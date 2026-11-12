@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using TMPro;
 using System.Collections.Generic;
+using UnityEngine.Events;
 
 public class ScoreManager : NetworkBehaviour
 {
@@ -11,8 +12,16 @@ public class ScoreManager : NetworkBehaviour
 
     //Lista con los textos de la UI que se irán actualizando. Usará la misma ID que la de puntuaciones
     public List<TMP_Text> scoreTexts = new();
+    public TMP_Text endGameTxt;
+
+    public int scoreToWin = 5;
+
+    //Callback para cuando se termina la partida
+    public UnityAction<ulong> OnGameEnded;
 
     public static ScoreManager Instance;
+
+    public bool gameEnded;
 
     private void Awake()
     {
@@ -39,7 +48,7 @@ public class ScoreManager : NetworkBehaviour
         scoreTexts[ev.Index].text = ev.Value.ToString();
 
         //Se comprueba si se ha llegado a la puntuación máxima. Si ocurre, se acaba la partidilla
-        if(ev.Value >= 3)
+        if(ev.Value >= scoreToWin)
         {
             EndGame((ulong)ev.Index);
         }
@@ -56,7 +65,10 @@ public class ScoreManager : NetworkBehaviour
         }
         else //Si esta persona NO es el Host, le pide al server que actualice la puntuación
         {
-            AddScoreRpc(playerID);
+            if(!gameEnded)
+            {
+                AddScoreRpc(playerID);
+            }
         }
     }
 
@@ -87,6 +99,17 @@ public class ScoreManager : NetworkBehaviour
     //ulong es como un int pero guarda números más grandes y solo puede ser positivo
     void EndGame(ulong winnerID)
     {
+        gameEnded = true;
+        //Llamar al callback de partida terminada
+        OnGameEnded?.Invoke(winnerID);
+        endGameTxt.gameObject.SetActive(true);
+
+        if(NetworkManager.LocalClientId == winnerID)
+        {
+            endGameTxt.color = Color.mediumSpringGreen;
+            endGameTxt.text = "VICTORIA";
+        }
+
         //Si la ID del ganador coincide con la nuestra, hemos ganado
         if(NetworkManager.LocalClientId == winnerID)
         {
